@@ -38,3 +38,6 @@ func formatMessage(msg string, args ...interface{}) string {
 	}
 	return msg
 }
+
+// создаем глобальный логгер
+var Log = New()
