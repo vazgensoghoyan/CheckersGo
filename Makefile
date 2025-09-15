@@ -1,10 +1,14 @@
 SWAGGER_DIRS=cmd/server,internal/server
-SWAGGER_MAIN=cmd/server/main.go
+MAIN_FILE=cmd/server/main.go
 
-.PHONY: swagger
 
-swrun: swagger
-	go run $(SWAGGER_MAIN)
+.PHONY: run run-swagger
 
-swagger:
+run:
+	go run $(MAIN_FILE)
+
+run-swagger: swagger # running with swagger
+	ENABLE_SWAGGER=true go run $(MAIN_FILE)
+
+swagger: # swagger docs
 	swag init -d $(SWAGGER_DIRS)

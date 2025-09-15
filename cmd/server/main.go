@@ -2,9 +2,9 @@ package main
 
 import (
 	"checkers/internal/server"
-	"checkers/pkg/logger"
+	"checkers/internal/swagger"
 
-	_ "checkers/docs"
+	"checkers/pkg/logger"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,9 @@ func main() {
 
 	server.InitHandlers(router)
 
-	server.InitSwagger(router)
+	if swagger.HasSwagger() {
+		swagger.Init(router)
+	}
 
 	logger.Log.Info("Server is RUNNED on port 8080")
 	router.Run(":8080")
