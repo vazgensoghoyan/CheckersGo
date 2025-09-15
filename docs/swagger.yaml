@@ -1,4 +1,55 @@
+definitions:
+  server.CreateGameRequest:
+    properties:
+      player1:
+        type: string
+      player2:
+        type: string
+    type: object
+  server.CreateGameResponce:
+    properties:
+      board:
+        items:
+          items:
+            type: integer
+          type: array
+        type: array
+      current_turn:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      winner:
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /games:
+    post:
+      consumes:
+      - application/json
+      description: Стартует новую партию шашек
+      parameters:
+      - description: Игроки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.CreateGameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.CreateGameResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.CreateGameResponce'
+      summary: Создать новую игру
+      tags:
+      - games
 swagger: "2.0"

@@ -3,36 +3,41 @@ package server
 import (
 	"net/http"
 
+	"checkers/pkg/logger"
+
+	_ "checkers/docs"
+
 	"github.com/gin-gonic/gin"
-
-	docs "checkers/docs"
-
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func InitHandlers(router *gin.Engine) {
-
-	docs.SwaggerInfo.BasePath = "/"
+func InitSwagger(router *gin.Engine) {
+	logger.Log.Info("Swagger TURNED ON")
 	router.GET(
 		"/swagger/*any",
 		ginSwagger.WrapHandler(swaggerFiles.Handler),
 	)
-
-	router.POST("/games", createGameRequest)
 }
 
-// CreateGame dogoc
+func InitHandlers(router *gin.Engine) {
+	logger.Log.Info("POST /games DEFINED")
+	router.POST("/games", CreateGame)
+}
+
+// TODOOOOO
+
+// CreateGame godoc
 // @Summary Создать новую игру
 // @Description Стартует новую партию шашек
 // @Tags games
 // @Accept json
 // @Produce json
-// @Param request body CreateGameRequest true "Игроки"
-// @Success 200 {object} GameResponse
-// @Failure 400 {object} ErrorResponse
+// @Param request body server.CreateGameRequest true "Игроки"
+// @Success 200 {object} server.CreateGameResponce
+// @Failure 400 {object} server.CreateGameResponce
 // @Router /games [post]
-func createGameRequest(c *gin.Context) {
+func CreateGame(c *gin.Context) {
 	var req CreateGameRequest
 
 	if err := c.BindJSON(&req); err != nil {

@@ -14,9 +14,9 @@ type Logger struct {
 
 func New() *Logger {
 	return &Logger{
-		info:  log.New(os.Stdout, "INFO:  ", log.LstdFlags),
-		error: log.New(os.Stderr, "ERROR:  ", log.LstdFlags),
-		debug: log.New(os.Stdout, "DEBUG:  ", log.LstdFlags),
+		info:  log.New(os.Stdout, "[MYLOGS] INFO:   ", log.LstdFlags),
+		error: log.New(os.Stderr, "[MYLOGS] ERROR:  ", log.LstdFlags),
+		debug: log.New(os.Stdout, "[MYLOGS] DEBUG:  ", log.LstdFlags),
 	}
 }
 
