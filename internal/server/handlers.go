@@ -3,14 +3,29 @@ package server
 import (
 	"net/http"
 
+	"checkers/pkg/logger"
+
 	"github.com/gin-gonic/gin"
 )
 
 func InitHandlers(router *gin.Engine) {
-	router.POST("/games", createGameRequest)
+	logger.Log.Info("POST /games DEFINED")
+	router.POST("/games", CreateGame)
 }
 
-func createGameRequest(c *gin.Context) {
+// TODOOOOO
+
+// CreateGame godoc
+// @Summary Создать новую игру
+// @Description Стартует новую партию шашек
+// @Tags games
+// @Accept json
+// @Produce json
+// @Param request body server.CreateGameRequest true "Игроки"
+// @Success 200 {object} server.CreateGameResponce
+// @Failure 400 {object} server.CreateGameResponce
+// @Router /games [post]
+func CreateGame(c *gin.Context) {
 	var req CreateGameRequest
 
 	if err := c.BindJSON(&req); err != nil {
