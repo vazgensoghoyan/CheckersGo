@@ -3,7 +3,7 @@ package swagger
 import (
 	"os"
 
-	_ "checkers/docs" // импорт сгенерированной документации
+	_ "checkers/docs"
 	"checkers/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +12,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// Init ничего не делает, но обеспечивает импорт для side-effects
 func Init(router *gin.Engine) {
 	logger.Log.Info("Swagger TURNED ON")
 	router.GET(
