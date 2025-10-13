@@ -1,0 +1,72 @@
+/* Общие стили */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+}
+
+h1, h2 {
+    margin-bottom: 10px;
+}
+
+section {
+    margin-bottom: 20px;
+}
+
+/* Таблица доски */
+#board {
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+#board td {
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    font-size: 24px;
+}
+
+/* Чередующиеся цвета клеток */
+#board tr:nth-child(even) td:nth-child(even),
+#board tr:nth-child(odd) td:nth-child(odd) {
+    background-color: #769656; /* тёмно-зелёный */
+}
+
+#board tr:nth-child(even) td:nth-child(odd),
+#board tr:nth-child(odd) td:nth-child(even) {
+    background-color: #eeeed2; /* светло-бежевый */
+}
+
+/* Шашки */
+.piece-white {
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.piece-black {
+    width: 50px;
+    height: 50px;
+    background-color: black;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Подсветка выбранной шашки */
+.selected {
+    outline: 3px solid yellow;
+}
+
+/* Подсветка возможного хода */
+.possible-move {
+    outline: 3px solid blue;
+}
+
+/* Статус игры */
+#connect-status, #winner-text {
+    font-weight: bold;
+}
