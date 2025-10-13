@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Шашки Онлайн</title>
+</head>
+<body>
+    <h1>Шашки Онлайн</h1>
+
+    <!-- Панель подключения -->
+    <section id="connect-section">
+        <h2>Подключение</h2>
+        <label>
+            Выберите цвет:
+            <select id="color-select">
+                <option value="white">Белые</option>
+                <option value="black">Чёрные</option>
+            </select>
+        </label>
+        <button id="connect-btn">Подключиться</button>
+        <p id="connect-status"></p>
+    </section>
+
+    <!-- Информация о текущем игроке -->
+    <section id="player-info" style="display:none;">
+        <p>Ваш цвет: <span id="player-color"></span></p>
+        <p>Ход сейчас: <span id="current-turn"></span></p>
+    </section>
+
+    <!-- Доска -->
+    <section id="board-section" style="display:none;">
+        <h2>Доска</h2>
+        <table id="board">
+            <!-- JS сгенерирует клетки -->
+        </table>
+    </section>
+
+    <!-- Статус игры -->
+    <section id="game-status" style="display:none;">
+        <p id="winner-text"></p>
+    </section>
+
+    <!-- Скрипт -->
+    <script src="script.js"></script>
+</body>
+</html>
