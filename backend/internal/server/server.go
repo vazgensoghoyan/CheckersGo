@@ -1,7 +1,7 @@
 package server
 
 import (
-	"checkers/internal/checkers"
+	"checkers/pkg/checkers"
 	"checkers/pkg/logger"
 	"errors"
 	"sync"
