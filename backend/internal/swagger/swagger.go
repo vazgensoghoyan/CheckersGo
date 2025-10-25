@@ -1,8 +1,6 @@
 package swagger
 
 import (
-	"os"
-
 	_ "checkers/docs"
 	"checkers/pkg/logger"
 
@@ -18,8 +16,4 @@ func Init(router *gin.Engine) {
 		"/swagger/*any",
 		ginSwagger.WrapHandler(swaggerFiles.Handler),
 	)
-}
-
-func HasSwagger() bool {
-	return os.Getenv("ENABLE_SWAGGER") == "true"
 }

@@ -1,55 +1,175 @@
 definitions:
-  server.CreateGameRequest:
+  server.errorResponse:
     properties:
-      player1:
-        type: string
-      player2:
+      error:
         type: string
     type: object
-  server.CreateGameResponce:
+  server.figureResponse:
+    properties:
+      is_king:
+        type: boolean
+      is_none:
+        type: boolean
+      is_white:
+        type: boolean
+    type: object
+  server.joinRequest:
+    properties:
+      name:
+        description: Имя игрока
+        type: string
+    type: object
+  server.joinResponse:
+    properties:
+      color:
+        description: '"white" или "black"'
+        type: string
+      player_id:
+        description: Уникальный ID игрока
+        type: string
+    type: object
+  server.moveRequest:
+    properties:
+      from:
+        description: 'Пример: "c3"'
+        type: string
+      player_id:
+        type: string
+      to:
+        description: 'Пример: "d4"'
+        type: string
+    type: object
+  server.moveResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  server.resetResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
+  server.stateResponse:
     properties:
       board:
+        description: Доска 8x8
         items:
           items:
-            type: integer
+            $ref: '#/definitions/server.figureResponse'
           type: array
         type: array
-      current_turn:
-        type: string
-      id:
-        type: string
-      status:
-        type: string
-      winner:
-        type: string
+      isWhiteTurn:
+        description: Чей ход сейчас
+        type: boolean
+      yourTurn:
+        description: Флаг, если ход текущего игрока
+        type: boolean
     type: object
 info:
   contact: {}
 paths:
-  /games:
+  /join:
     post:
       consumes:
       - application/json
-      description: Стартует новую партию шашек
+      description: Игрок присоединяется к текущей партии и получает ID и цвет фигур.
       parameters:
-      - description: Игроки
+      - description: Имя игрока
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/server.CreateGameRequest'
+          $ref: '#/definitions/server.joinRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.CreateGameResponce'
+            $ref: '#/definitions/server.joinResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/server.CreateGameResponce'
-      summary: Создать новую игру
+            $ref: '#/definitions/server.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Присоединиться к игре
       tags:
-      - games
+      - Game
+  /move:
+    post:
+      consumes:
+      - application/json
+      description: Игрок делает ход с клетки "from" на клетку "to".
+      parameters:
+      - description: Данные хода
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/server.moveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.moveResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Сделать ход
+      tags:
+      - Game
+  /reset:
+    post:
+      consumes:
+      - application/json
+      description: Полностью сбрасывает текущую партию, удаляя игроков и заново создавая
+        доску.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.resetResponse'
+      summary: Сбросить игру
+      tags:
+      - Game
+  /state:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает текущее состояние доски, чей сейчас ход и информацию
+        о игроке.
+      parameters:
+      - description: ID игрока
+        in: query
+        name: player_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.stateResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Получить состояние игры
+      tags:
+      - Game
 swagger: "2.0"

@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/games": {
+        "/join": {
             "post": {
-                "description": "Стартует новую партию шашек",
+                "description": "Игрок присоединяется к текущей партии и получает ID и цвет фигур.",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,17 +25,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "games"
+                    "Game"
                 ],
-                "summary": "Создать новую игру",
+                "summary": "Присоединиться к игре",
                 "parameters": [
                     {
-                        "description": "Игроки",
+                        "description": "Имя игрока",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/server.CreateGameRequest"
+                            "$ref": "#/definitions/server.joinRequest"
                         }
                     }
                 ],
@@ -43,13 +43,126 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.CreateGameResponce"
+                            "$ref": "#/definitions/server.joinResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/server.CreateGameResponce"
+                            "$ref": "#/definitions/server.errorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/move": {
+            "post": {
+                "description": "Игрок делает ход с клетки \"from\" на клетку \"to\".",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Сделать ход",
+                "parameters": [
+                    {
+                        "description": "Данные хода",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.moveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.moveResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.errorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reset": {
+            "post": {
+                "description": "Полностью сбрасывает текущую партию, удаляя игроков и заново создавая доску.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Сбросить игру",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.resetResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/state": {
+            "get": {
+                "description": "Возвращает текущее состояние доски, чей сейчас ход и информацию о игроке.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Получить состояние игры",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID игрока",
+                        "name": "player_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.stateResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/server.errorResponse"
                         }
                     }
                 }
@@ -57,40 +170,105 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "server.CreateGameRequest": {
+        "server.errorResponse": {
             "type": "object",
             "properties": {
-                "player1": {
-                    "type": "string"
-                },
-                "player2": {
+                "error": {
                     "type": "string"
                 }
             }
         },
-        "server.CreateGameResponce": {
+        "server.figureResponse": {
+            "type": "object",
+            "properties": {
+                "is_king": {
+                    "type": "boolean"
+                },
+                "is_none": {
+                    "type": "boolean"
+                },
+                "is_white": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.joinRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Имя игрока",
+                    "type": "string"
+                }
+            }
+        },
+        "server.joinResponse": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "description": "\"white\" или \"black\"",
+                    "type": "string"
+                },
+                "player_id": {
+                    "description": "Уникальный ID игрока",
+                    "type": "string"
+                }
+            }
+        },
+        "server.moveRequest": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "description": "Пример: \"c3\"",
+                    "type": "string"
+                },
+                "player_id": {
+                    "type": "string"
+                },
+                "to": {
+                    "description": "Пример: \"d4\"",
+                    "type": "string"
+                }
+            }
+        },
+        "server.moveResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.resetResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "server.stateResponse": {
             "type": "object",
             "properties": {
                 "board": {
+                    "description": "Доска 8x8",
                     "type": "array",
                     "items": {
                         "type": "array",
                         "items": {
-                            "type": "integer"
+                            "$ref": "#/definitions/server.figureResponse"
                         }
                     }
                 },
-                "current_turn": {
-                    "type": "string"
+                "isWhiteTurn": {
+                    "description": "Чей ход сейчас",
+                    "type": "boolean"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "winner": {
-                    "type": "string"
+                "yourTurn": {
+                    "description": "Флаг, если ход текущего игрока",
+                    "type": "boolean"
                 }
             }
         }

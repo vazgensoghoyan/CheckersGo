@@ -20,9 +20,9 @@ type Move struct {
 }
 
 type Figure struct {
-	isNone  bool
-	isWhite bool
-	isKing  bool
+	IsNone  bool
+	IsWhite bool
+	IsKing  bool
 }
 
 func NewCheckers() *Checkers {
@@ -36,14 +36,14 @@ func NewCheckers() *Checkers {
 	for row := 0; row < 8; row++ {
 		for col := 0; col < 8; col++ {
 			// Все клетки по умолчанию пустые
-			board[row][col] = Figure{isNone: true, isWhite: false, isKing: false}
+			board[row][col] = Figure{IsNone: true, IsWhite: false, IsKing: false}
 
 			// Шашки только на черных полях (где row+col нечетное)
 			if (row+col)%2 == 1 {
 				if row < 3 { // Первые 3 ряда - белые шашки
-					board[row][col] = Figure{isNone: false, isWhite: true, isKing: false}
+					board[row][col] = Figure{IsNone: false, IsWhite: true, IsKing: false}
 				} else if row > 4 { // Последние 3 ряда - черные шашки
-					board[row][col] = Figure{isNone: false, isWhite: false, isKing: false}
+					board[row][col] = Figure{IsNone: false, IsWhite: false, IsKing: false}
 				}
 				// Ряды 3 и 4 (индексы row=3 и row=4) остаются пустыми
 			}
@@ -59,16 +59,16 @@ func (checkers *Checkers) PrintBoard() {
 		for col := 0; col < 8; col++ {
 			figure := checkers.Board[row][col]
 			var symbol string
-			if figure.isNone {
+			if figure.IsNone {
 				symbol = " . " // Пустая клетка
-			} else if figure.isWhite {
-				if figure.isKing {
+			} else if figure.IsWhite {
+				if figure.IsKing {
 					symbol = " Wk " // Белая дамка
 				} else {
 					symbol = " W " // Обычная белая
 				}
 			} else {
-				if figure.isKing {
+				if figure.IsKing {
 					symbol = " Bk " // Черная дамка
 				} else {
 					symbol = " B " // Обычная черная
@@ -93,12 +93,12 @@ func (c *Checkers) IsValidMove(move Move) (bool, string) {
 
 	// Проверка, что на исходной клетке есть фигура
 	fromFigure := c.Board[fromRow][fromCol]
-	if fromFigure.isNone {
+	if fromFigure.IsNone {
 		return false, "На исходной клетке нет фигуры"
 	}
 
 	// Проверка, что ходит правильный игрок
-	if fromFigure.isWhite != c.IsWhiteTurn {
+	if fromFigure.IsWhite != c.IsWhiteTurn {
 		if c.IsWhiteTurn {
 			return false, "Сейчас ход белых"
 		}
@@ -106,7 +106,7 @@ func (c *Checkers) IsValidMove(move Move) (bool, string) {
 	}
 
 	// Проверка, что целевая клетка пуста
-	if !c.Board[toRow][toCol].isNone {
+	if !c.Board[toRow][toCol].IsNone {
 		return false, "Целевая клетка занята"
 	}
 
@@ -120,11 +120,11 @@ func (c *Checkers) IsValidMove(move Move) (bool, string) {
 	// Обычный ход (на одну клетку)
 	if abs(rowDiff) == 1 {
 		// Обычные шашки ходят только вперед
-		if !fromFigure.isKing {
-			if fromFigure.isWhite && rowDiff < 0 {
+		if !fromFigure.IsKing {
+			if fromFigure.IsWhite && rowDiff < 0 {
 				return false, "Белые шашки ходят вниз"
 			}
-			if !fromFigure.isWhite && rowDiff > 0 {
+			if !fromFigure.IsWhite && rowDiff > 0 {
 				return false, "Черные шашки ходят вверх"
 			}
 		}
@@ -138,10 +138,10 @@ func (c *Checkers) IsValidMove(move Move) (bool, string) {
 		middleFigure := c.Board[middleRow][middleCol]
 
 		// Проверка, что есть фигура противника для взятия
-		if middleFigure.isNone {
+		if middleFigure.IsNone {
 			return false, "Нет фигуры для взятия"
 		}
-		if middleFigure.isWhite == fromFigure.isWhite {
+		if middleFigure.IsWhite == fromFigure.IsWhite {
 			return false, "Нельзя брать свою фигуру"
 		}
 
@@ -163,22 +163,22 @@ func (c *Checkers) MakeMove(move Move) bool {
 
 	// Перемещаем фигуру
 	c.Board[toRow][toCol] = c.Board[fromRow][fromCol]
-	c.Board[fromRow][fromCol] = Figure{isNone: true}
+	c.Board[fromRow][fromCol] = Figure{IsNone: true}
 
 	// Если было взятие, убираем съеденную фигуру
 	if abs(toRow-fromRow) == 2 {
 		middleRow := (fromRow + toRow) / 2
 		middleCol := (fromCol + toCol) / 2
-		c.Board[middleRow][middleCol] = Figure{isNone: true}
+		c.Board[middleRow][middleCol] = Figure{IsNone: true}
 	}
 
 	// Превращение в дамку
-	if !c.Board[toRow][toCol].isKing {
-		if c.Board[toRow][toCol].isWhite && toRow == 7 {
-			c.Board[toRow][toCol].isKing = true
+	if !c.Board[toRow][toCol].IsKing {
+		if c.Board[toRow][toCol].IsWhite && toRow == 7 {
+			c.Board[toRow][toCol].IsKing = true
 			fmt.Println("Белая шашка стала дамкой!")
-		} else if !c.Board[toRow][toCol].isWhite && toRow == 0 {
-			c.Board[toRow][toCol].isKing = true
+		} else if !c.Board[toRow][toCol].IsWhite && toRow == 0 {
+			c.Board[toRow][toCol].IsKing = true
 			fmt.Println("Черная шашка стала дамкой!")
 		}
 	}
