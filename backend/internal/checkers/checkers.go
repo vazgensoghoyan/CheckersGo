@@ -1,4 +1,4 @@
-package main
+package checkers
 
 import (
 	"bufio"
@@ -37,7 +37,7 @@ func NewCheckers() *Checkers {
 		for col := 0; col < 8; col++ {
 			// Все клетки по умолчанию пустые
 			board[row][col] = Figure{isNone: true, isWhite: false, isKing: false}
-			
+
 			// Шашки только на черных полях (где row+col нечетное)
 			if (row+col)%2 == 1 {
 				if row < 3 { // Первые 3 ряда - белые шашки
