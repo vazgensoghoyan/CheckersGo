@@ -8,8 +8,8 @@ import (
 )
 
 type Checkers struct {
-	board       [][]Figure
-	isWhiteTurn bool // Чей ход
+	Board       [][]Figure
+	IsWhiteTurn bool // Чей ход
 }
 
 type Move struct {
@@ -50,14 +50,14 @@ func NewCheckers() *Checkers {
 		}
 	}
 
-	return &Checkers{board: board, isWhiteTurn: true}
+	return &Checkers{Board: board, IsWhiteTurn: true}
 }
 
 func (checkers *Checkers) PrintBoard() {
 	for row := 0; row < 8; row++ {
 		fmt.Printf("%d ", 8-row)
 		for col := 0; col < 8; col++ {
-			figure := checkers.board[row][col]
+			figure := checkers.Board[row][col]
 			var symbol string
 			if figure.isNone {
 				symbol = " . " // Пустая клетка
@@ -92,21 +92,21 @@ func (c *Checkers) IsValidMove(move Move) (bool, string) {
 	}
 
 	// Проверка, что на исходной клетке есть фигура
-	fromFigure := c.board[fromRow][fromCol]
+	fromFigure := c.Board[fromRow][fromCol]
 	if fromFigure.isNone {
 		return false, "На исходной клетке нет фигуры"
 	}
 
 	// Проверка, что ходит правильный игрок
-	if fromFigure.isWhite != c.isWhiteTurn {
-		if c.isWhiteTurn {
+	if fromFigure.isWhite != c.IsWhiteTurn {
+		if c.IsWhiteTurn {
 			return false, "Сейчас ход белых"
 		}
 		return false, "Сейчас ход черных"
 	}
 
 	// Проверка, что целевая клетка пуста
-	if !c.board[toRow][toCol].isNone {
+	if !c.Board[toRow][toCol].isNone {
 		return false, "Целевая клетка занята"
 	}
 
@@ -135,7 +135,7 @@ func (c *Checkers) IsValidMove(move Move) (bool, string) {
 	if abs(rowDiff) == 2 {
 		middleRow := (fromRow + toRow) / 2
 		middleCol := (fromCol + toCol) / 2
-		middleFigure := c.board[middleRow][middleCol]
+		middleFigure := c.Board[middleRow][middleCol]
 
 		// Проверка, что есть фигура противника для взятия
 		if middleFigure.isNone {
@@ -162,29 +162,29 @@ func (c *Checkers) MakeMove(move Move) bool {
 	toRow, toCol := move.toRow, move.toCol
 
 	// Перемещаем фигуру
-	c.board[toRow][toCol] = c.board[fromRow][fromCol]
-	c.board[fromRow][fromCol] = Figure{isNone: true}
+	c.Board[toRow][toCol] = c.Board[fromRow][fromCol]
+	c.Board[fromRow][fromCol] = Figure{isNone: true}
 
 	// Если было взятие, убираем съеденную фигуру
 	if abs(toRow-fromRow) == 2 {
 		middleRow := (fromRow + toRow) / 2
 		middleCol := (fromCol + toCol) / 2
-		c.board[middleRow][middleCol] = Figure{isNone: true}
+		c.Board[middleRow][middleCol] = Figure{isNone: true}
 	}
 
 	// Превращение в дамку
-	if !c.board[toRow][toCol].isKing {
-		if c.board[toRow][toCol].isWhite && toRow == 7 {
-			c.board[toRow][toCol].isKing = true
+	if !c.Board[toRow][toCol].isKing {
+		if c.Board[toRow][toCol].isWhite && toRow == 7 {
+			c.Board[toRow][toCol].isKing = true
 			fmt.Println("Белая шашка стала дамкой!")
-		} else if !c.board[toRow][toCol].isWhite && toRow == 0 {
-			c.board[toRow][toCol].isKing = true
+		} else if !c.Board[toRow][toCol].isWhite && toRow == 0 {
+			c.Board[toRow][toCol].isKing = true
 			fmt.Println("Черная шашка стала дамкой!")
 		}
 	}
 
 	// Переключаем ход
-	c.isWhiteTurn = !c.isWhiteTurn
+	c.IsWhiteTurn = !c.IsWhiteTurn
 	return true
 }
 
@@ -234,7 +234,7 @@ func StartGame(c *Checkers) {
 	for {
 		c.PrintBoard()
 
-		if c.isWhiteTurn {
+		if c.IsWhiteTurn {
 			fmt.Print("\nХод белых (например: c3 d4): ")
 		} else {
 			fmt.Print("\nХод черных (например: c6 d5): ")

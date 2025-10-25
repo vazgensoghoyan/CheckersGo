@@ -3,50 +3,77 @@ package server
 import (
 	"net/http"
 
-	"checkers/pkg/logger"
-
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func InitHandlers(router *gin.Engine) {
-	logger.Log.Info("POST /games DEFINED")
-	router.POST("/games", CreateGame)
+	router.POST("/join", joinHandler)
+	router.GET("/state", stateHandler)
+	router.POST("/move", moveHandler)
+	router.POST("/reset", resetHandler)
 }
 
-// TODOOOOO
-
-// CreateGame godoc
-// @Summary Создать новую игру
-// @Description Стартует новую партию шашек
-// @Tags games
-// @Accept json
-// @Produce json
-// @Param request body server.CreateGameRequest true "Игроки"
-// @Success 200 {object} server.CreateGameResponce
-// @Failure 400 {object} server.CreateGameResponce
-// @Router /games [post]
-func CreateGame(c *gin.Context) {
-	var req CreateGameRequest
-
+// Присоединиться к игре
+func joinHandler(c *gin.Context) {
+	var req struct {
+		Name string `json:"name"`
+	}
 	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "неверный формат"})
 		return
 	}
 
-	// do some work
-	board := make([][]int, 8)
-	for i := range board {
-		board[i] = make([]int, 8)
+	playerID := uuid.New().String()
+	color, err := Server.JoinGame(playerID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
 	}
 
-	// end of work
+	c.JSON(http.StatusOK, gin.H{
+		"player_id": playerID,
+		"color":     color,
+	})
+}
 
-	resp := CreateGameResponce{
-		ID:          "142",
-		Status:      "waiting_for_move",
-		Board:       board,
-		CurrentTurn: req.Player1,
-		Winner:      nil,
+// Получить состояние игры
+func stateHandler(c *gin.Context) {
+	playerID := c.Query("player_id")
+	game, yourTurn, err := Server.GetState(playerID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusOK, gin.H{
+		"board":     game.Board, // метод возвращает [][]Figure
+		"isWhiteTurn": game.IsWhiteTurn,
+		"yourTurn":  yourTurn,
+	})
+}
+
+// Сделать ход
+func moveHandler(c *gin.Context) {
+	var req struct {
+		PlayerID string `json:"player_id"`
+		From     string `json:"from"`
+		To       string `json:"to"`
+	}
+	if err := c.BindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "неверный формат"})
+		return
+	}
+
+	success, message := Server.MakeMove(req.PlayerID, req.From, req.To)
+	c.JSON(http.StatusOK, gin.H{
+		"success": success,
+		"message": message,
+	})
+}
+
+// Сбросить игру
+func resetHandler(c *gin.Context) {
+	Server.ResetGame()
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
