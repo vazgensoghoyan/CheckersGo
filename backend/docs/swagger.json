@@ -1,0 +1,87 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/games": {
+            "post": {
+                "description": "Стартует новую партию шашек",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Создать новую игру",
+                "parameters": [
+                    {
+                        "description": "Игроки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.CreateGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/server.CreateGameResponce"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/server.CreateGameResponce"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "server.CreateGameRequest": {
+            "type": "object",
+            "properties": {
+                "player1": {
+                    "type": "string"
+                },
+                "player2": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.CreateGameResponce": {
+            "type": "object",
+            "properties": {
+                "board": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "current_turn": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "winner": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
