@@ -1,4 +1,4 @@
-package checkers
+package main
 
 import (
 	"bufio"
@@ -13,7 +13,7 @@ type Checkers struct {
 }
 
 type Move struct {
-	frowRow int
+	fromRow int
 	fromCol int
 	toRow   int
 	toCol   int
@@ -33,22 +33,24 @@ func NewCheckers() *Checkers {
 	}
 
 	// Расставляем фигуры
-	for row := 0; row < 8; row++ { // По строкам
-		for col := 0; col < 8; col++ { // По столбцам
+	for row := 0; row < 8; row++ {
+		for col := 0; col < 8; col++ {
+			// Все клетки по умолчанию пустые
+			board[row][col] = Figure{isNone: true, isWhite: false, isKing: false}
+			
+			// Шашки только на черных полях (где row+col нечетное)
 			if (row+col)%2 == 1 {
-				// Шашки на черных полях
-				if row < 3 { // Белые сверху
+				if row < 3 { // Первые 3 ряда - белые шашки
 					board[row][col] = Figure{isNone: false, isWhite: true, isKing: false}
-				} else if row > 4 { // Черные снизу
+				} else if row > 4 { // Последние 3 ряда - черные шашки
 					board[row][col] = Figure{isNone: false, isWhite: false, isKing: false}
-				} else {
-					board[row][col] = Figure{isNone: true, isWhite: false, isKing: false} // Белые поля пустые
 				}
+				// Ряды 3 и 4 (индексы row=3 и row=4) остаются пустыми
 			}
 		}
 	}
 
-	return &Checkers{board: board}
+	return &Checkers{board: board, isWhiteTurn: true}
 }
 
 func (checkers *Checkers) PrintBoard() {
@@ -80,7 +82,7 @@ func (checkers *Checkers) PrintBoard() {
 }
 
 func (c *Checkers) IsValidMove(move Move) (bool, string) {
-	fromRow, fromCol := move.frowRow, move.fromCol
+	fromRow, fromCol := move.fromRow, move.fromCol
 	toRow, toCol := move.toRow, move.toCol
 
 	// Проверка границ
@@ -156,7 +158,7 @@ func (c *Checkers) MakeMove(move Move) bool {
 		return false
 	}
 
-	fromRow, fromCol := move.frowRow, move.fromCol
+	fromRow, fromCol := move.fromRow, move.fromCol
 	toRow, toCol := move.toRow, move.toCol
 
 	// Перемещаем фигуру
@@ -203,7 +205,7 @@ func ParseMove(input string) (Move, error) {
 	}
 
 	return Move{
-		frowRow: from[0],
+		fromRow: from[0],
 		fromCol: from[1],
 		toRow:   to[0],
 		toCol:   to[1],

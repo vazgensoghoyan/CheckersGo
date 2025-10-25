@@ -1,6 +1,6 @@
 package checkers
 
-import "fmt"
+import ""
 
 func GetName(row, col int) string {
 	letters := "abcdefgh" // для обозначения полей
