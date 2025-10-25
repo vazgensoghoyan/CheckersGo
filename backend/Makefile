@@ -7,8 +7,5 @@ MAIN_FILE=cmd/server/main.go
 run:
 	go run $(MAIN_FILE)
 
-run-swagger: swagger # running with swagger
-	ENABLE_SWAGGER=true go run $(MAIN_FILE)
-
 swagger: # swagger docs
 	swag init -d $(SWAGGER_DIRS)
