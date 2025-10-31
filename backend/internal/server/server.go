@@ -39,17 +39,11 @@ func (s *GameServer) JoinGame(playerID string) (string, error) {
 }
 
 // Получение состояния игры
-func (s *GameServer) GetState(playerID string) (*checkers.Checkers, bool, error) {
+func (s *GameServer) GetState() (*checkers.Checkers, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	color, ok := s.players[playerID]
-	if !ok {
-		return nil, false, errors.New("вы не подключены к игре")
-	}
-
-	yourTurn := (color == "white" && s.game.IsWhiteTurn) || (color == "black" && !s.game.IsWhiteTurn)
-	return s.game, yourTurn, nil
+	return s.game, nil
 }
 
 // Сделать ход

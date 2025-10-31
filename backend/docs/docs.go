@@ -143,15 +143,6 @@ const docTemplate = `{
                     "Game"
                 ],
                 "summary": "Получить состояние игры",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "ID игрока",
-                        "name": "player_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -264,10 +255,6 @@ const docTemplate = `{
                 },
                 "isWhiteTurn": {
                     "description": "Чей ход сейчас",
-                    "type": "boolean"
-                },
-                "yourTurn": {
-                    "description": "Флаг, если ход текущего игрока",
                     "type": "boolean"
                 }
             }

@@ -22,7 +22,6 @@ type figureResponse struct {
 type stateResponse struct {
 	Board       [][]figureResponse `json:"board"`       // Доска 8x8
 	IsWhiteTurn bool               `json:"isWhiteTurn"` // Чей ход сейчас
-	YourTurn    bool               `json:"yourTurn"`    // Флаг, если ход текущего игрока
 }
 
 type moveRequest struct {

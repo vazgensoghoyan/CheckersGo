@@ -63,9 +63,6 @@ definitions:
       isWhiteTurn:
         description: Чей ход сейчас
         type: boolean
-      yourTurn:
-        description: Флаг, если ход текущего игрока
-        type: boolean
     type: object
 info:
   contact: {}
@@ -152,12 +149,6 @@ paths:
       - application/json
       description: Возвращает текущее состояние доски, чей сейчас ход и информацию
         о игроке.
-      parameters:
-      - description: ID игрока
-        in: query
-        name: player_id
-        required: true
-        type: string
       produces:
       - application/json
       responses:

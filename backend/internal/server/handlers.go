@@ -57,13 +57,11 @@ func joinHandler(c *gin.Context) {
 // @Tags Game
 // @Accept json
 // @Produce json
-// @Param player_id query string true "ID игрока"
 // @Success 200 {object} stateResponse
 // @Failure 403 {object} errorResponse
 // @Router /state [get]
 func stateHandler(c *gin.Context) {
-	playerID := c.Query("player_id")
-	game, yourTurn, err := Server.GetState(playerID)
+	game, err := Server.GetState()
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
@@ -72,7 +70,6 @@ func stateHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, stateResponse{
 		Board:       convertBoard(game.Board),
 		IsWhiteTurn: game.IsWhiteTurn,
-		YourTurn:    yourTurn,
 	})
 }
 
