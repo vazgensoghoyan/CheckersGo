@@ -1,49 +1,539 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Шашки Онлайн</title>
-    
-    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Checkers — Клиент</title>
+    <style>
+    :root{
+        --board-size: 480px;
+        --square-size: calc(var(--board-size) / 8);
+        --light: #f0d9b5;
+        --dark: #b58863;
+        --accent: #2b7cff;
+        --white-piece: #fff;
+        --black-piece: #111;
+        --selected: rgba(43,124,255,0.35);
+        --highlight: rgba(43,200,100,0.25);
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
 
+    body{
+        display:flex;
+        gap:24px;
+        padding:24px;
+        align-items:flex-start;
+        background:#f7f7fb;
+        color:#111;
+    }
+
+    .container{
+        display:flex;
+        gap:20px;
+        align-items:flex-start;
+    }
+
+    .panel{
+        background:#fff;
+        border-radius:10px;
+        box-shadow:0 6px 18px rgba(15,15,20,0.06);
+        padding:16px;
+    }
+
+    .board {
+        width:var(--board-size);
+        height:var(--board-size);
+        display:grid;
+        grid-template-columns:repeat(8,1fr);
+        grid-template-rows:repeat(8,1fr);
+        border-radius:8px;
+        overflow:hidden;
+    }
+
+    .square{
+        width:var(--square-size);
+        height:var(--square-size);
+        box-sizing:border-box;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        position:relative;
+        user-select:none;
+        cursor:pointer;
+        transition:background 0.08s;
+    }
+
+    .square.light{ background:var(--light); }
+    .square.dark{ background:var(--dark); color:#fff; }
+
+    .square.coord {
+        font-size:10px;
+        position:absolute;
+        top:4px;
+        left:6px;
+        opacity:0.6;
+        pointer-events:none;
+    }
+
+    .piece {
+        width:62%;
+        height:62%;
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:700;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        border:3px solid rgba(0,0,0,0.06);
+        transform: translateY(0);
+    }
+
+    .piece.white {
+        background:var(--white-piece);
+        color:#222;
+    }
+    .piece.black {
+        background:var(--black-piece);
+        color:#fff;
+    }
+
+    .piece.king {
+        /* slightly larger and show crown */
+        font-size:18px;
+    }
+
+    .square.selected { box-shadow: inset 0 0 0 4px var(--selected); }
+    .square.highlight { box-shadow: inset 0 0 0 4px var(--highlight); }
+
+    .controls { display:flex; flex-direction:column; gap:12px; width:320px; }
+    .controls h2 { margin:0 0 6px 0; font-size:18px; }
+    .row { display:flex; gap:8px; align-items:center; }
+    input[type="text"]{
+        padding:8px 10px;
+        border-radius:8px;
+        border:1px solid #e4e7ec;
+        width:100%;
+        box-sizing:border-box;
+        font-size:14px;
+    }
+    button{
+        padding:8px 12px;
+        border-radius:8px;
+        border:0;
+        background:var(--accent);
+        color:#fff;
+        cursor:pointer;
+        font-weight:600;
+    }
+    button.ghost{
+        background:#fff;
+        color:#333;
+        border:1px solid #e4e7ec;
+    }
+    .status{
+        border-radius:8px;
+        padding:8px;
+        background:#f3f6ff;
+        color:#0a2a66;
+        font-size:13px;
+    }
+    .small { font-size:13px; color:#666; }
+    .footer { font-size:12px; color:#888; margin-top:8px; }
+    pre { white-space:pre-wrap; word-break:break-word; font-size:13px; }
+    </style>
 </head>
 <body>
-    <h1>Шашки Онлайн</h1>
+  <div class="panel">
+    <div style="display:flex;gap:12px;align-items:center;">
+      <h1 style="margin:0;font-size:20px;">Шашки — клиент</h1>
+      <div style="margin-left:auto;" class="small">Просто HTML/CSS/JS</div>
+    </div>
 
-    <!-- Панель подключения -->
-    <section id="connect-section">
-        <h2>Подключение</h2>
-        <label>
-            Выберите цвет:
-            <select id="color-select">
-                <option value="white">Белые</option>
-                <option value="black">Чёрные</option>
-            </select>
-        </label>
-        <button id="connect-btn">Подключиться</button>
-        <p id="connect-status"></p>
-    </section>
+    <div style="height:16px;"></div>
 
-    <!-- Информация о текущем игроке -->
-    <section id="player-info" style="display:none;">
-        <p>Ваш цвет: <span id="player-color"></span></p>
-        <p>Ход сейчас: <span id="current-turn"></span></p>
-    </section>
+    <div class="board" id="board" aria-label="Шашечная доска"></div>
 
-    <!-- Доска -->
-    <section id="board-section" style="display:none;">
-        <h2>Доска</h2>
-        <table id="board">
-            <!-- JS сгенерирует клетки -->
-        </table>
-    </section>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button id="refreshBtn" class="ghost">Обновить</button>
+      <button id="resetBtn">Сбросить игру</button>
+      <button id="clearBtn" class="ghost">Выйти (очистить)</button>
+    </div>
+    <div class="footer small">Подсказка: клик по вашей фигуре → клик по целевой клетке. Координаты отображаются вверху слева каждой клетки.</div>
+  </div>
 
-    <!-- Статус игры -->
-    <section id="game-status" style="display:none;">
-        <p id="winner-text"></p>
-    </section>
+  <div class="panel controls">
+    <h2>Управление</h2>
 
-    <!-- Скрипт -->
-    <script src="script.js"></script>
+    <div id="joinBlock">
+      <label class="small">Имя игрока</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="nameInput" placeholder="Ваше имя (необязательно)" />
+        <button id="joinBtn">Присоединиться</button>
+      </div>
+      <div class="small" style="margin-top:6px">После присоединения сохранится ваш player_id и цвет в localStorage.</div>
+    </div>
+
+    <div id="infoBlock" style="display:none;">
+      <div><strong>Игрок:</strong> <span id="playerName">—</span></div>
+      <div><strong>player_id:</strong> <span id="playerId">—</span></div>
+      <div><strong>Цвет:</strong> <span id="playerColor">—</span></div>
+      <div style="height:6px;"></div>
+    </div>
+
+    <div class="status" id="status">Статус: не подключено</div>
+
+    <div style="display:flex;gap:8px;">
+      <button id="pollToggle" class="ghost">Остановить авто-опрос</button>
+      <button id="forceMove" class="ghost" title="Выполнить заранее заданный пример хода">Тест-ход (пример)</button>
+    </div>
+
+    <div style="height:8px;"></div>
+    <div>
+      <strong>Последнее сообщение сервера:</strong>
+      <pre id="serverMsg">—</pre>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ========== НАСТРОЙКИ ==========
+  const API_BASE = ''; // если фронт на том же origin, оставьте пустым. Иначе например 'http://localhost:8080'
+  const POLL_INTERVAL_MS = 1500;
+
+  // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+  const $ = id => document.getElementById(id);
+
+  // локальное хранилище
+  const LS_ID = 'checkers_player_id';
+  const LS_COLOR = 'checkers_player_color';
+  const LS_NAME = 'checkers_player_name';
+
+  // координаты: столбцы a..h слева направо, строки 8..1 сверху вниз
+  // мы отображаем board[0][0] как a8 (т.е. верхняя левая).
+  // Если ваша серверная доска другая — поменяйте mapIndex функции.
+  function idxToCoord(r, c){
+    const file = String.fromCharCode('a'.charCodeAt(0) + c);
+    const rank = 8 - r;
+    return file + rank;
+  }
+
+  function coordToIdx(coord){
+    // coord like "c3" -> {r,c}
+    if(!coord || coord.length < 2) return null;
+    const file = coord[0];
+    const rank = parseInt(coord.slice(1), 10);
+    const c = file.charCodeAt(0) - 'a'.charCodeAt(0);
+    const r = 8 - rank;
+    if(r<0||r>7||c<0||c>7) return null;
+    return {r,c};
+  }
+
+  // api helpers
+  async function apiJoin(name){
+    const resp = await fetch(API_BASE + '/join', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ name })
+    });
+    return resp.json();
+  }
+
+  async function apiState(){
+    const resp = await fetch(API_BASE + '/state', { method:'GET' });
+    return resp.json();
+  }
+
+  async function apiMove(player_id, from, to){
+    const resp = await fetch(API_BASE + '/move', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ player_id, from, to })
+    });
+    return resp.json();
+  }
+
+  async function apiReset(){
+    const resp = await fetch(API_BASE + '/reset', { method:'POST' });
+    return resp.json();
+  }
+
+  // ========== UI ==========
+  const boardEl = $('board');
+  let boardState = null; // last fetched state
+  let selected = null; // {r,c,coord}
+
+  // create 8x8 squares
+  function buildBoard(){
+    boardEl.innerHTML = '';
+    for(let r=0;r<8;r++){
+      for(let c=0;c<8;c++){
+        const sq = document.createElement('div');
+        sq.className = 'square ' + ((r+c)%2===0 ? 'light' : 'dark');
+        sq.dataset.r = r;
+        sq.dataset.c = c;
+        const coord = idxToCoord(r,c);
+        const coordEl = document.createElement('div');
+        coordEl.className = 'coord';
+        coordEl.textContent = coord;
+        sq.appendChild(coordEl);
+        sq.addEventListener('click', onSquareClick);
+        boardEl.appendChild(sq);
+      }
+    }
+  }
+
+  function renderBoard(state){
+    // state.board expected: [][]figureResponse {is_none,is_white,is_king}
+    boardState = state;
+    const squares = boardEl.children;
+    for(let r=0;r<8;r++){
+      for(let c=0;c<8;c++){
+        const i = r*8 + c;
+        const sq = squares[i];
+        // clear selection/highlight classes first
+        sq.classList.remove('selected','highlight');
+        // remove existing piece element
+        const existing = sq.querySelector('.piece');
+        if(existing) existing.remove();
+
+        const fig = (state && state.board && state.board[r] && state.board[r][c]) ? state.board[r][c] : {is_none:true};
+        if(!fig.is_none){
+          const p = document.createElement('div');
+          p.className = 'piece ' + (fig.is_white ? 'white' : 'black') + (fig.is_king ? ' king' : '');
+          p.textContent = fig.is_king ? (fig.is_white ? '♔' : '♚') : '';
+          sq.appendChild(p);
+        }
+      }
+    }
+
+    // update status
+    updateStatusText(state);
+    // if selected, keep highlight on that square
+    if(selected){
+      const idx = selected.r*8 + selected.c;
+      if(squares[idx]) squares[idx].classList.add('selected');
+    }
+  }
+
+  function updateStatusText(state){
+    const statusEl = $('status');
+    if(!state){
+      statusEl.textContent = 'Статус: нет данных';
+      return;
+    }
+    const turn = state.IsWhiteTurn ? 'white' : 'black';
+    statusEl.textContent = `Ход сейчас: ${turn} (${state.IsWhiteTurn ? 'белые' : 'черные'})`;
+    $('serverMsg').textContent = ''; // keep last server move messages elsewhere
+  }
+
+  // ========== Взаимодействие ==========
+  async function onSquareClick(e){
+    const sq = e.currentTarget;
+    const r = parseInt(sq.dataset.r,10);
+    const c = parseInt(sq.dataset.c,10);
+    const coord = idxToCoord(r,c);
+
+    const playerId = localStorage.getItem(LS_ID);
+    const playerColor = localStorage.getItem(LS_COLOR);
+
+    // if there is a piece and it belongs to the player -> select it
+    const fig = boardState && boardState.board && boardState.board[r] && boardState.board[r][c] ? boardState.board[r][c] : {is_none:true};
+    if(!fig.is_none && playerColor && ((fig.is_white && playerColor === 'white') || (!fig.is_white && playerColor === 'black'))){
+      // select this piece
+      selected = { r, c, coord };
+      applySelection();
+      return;
+    }
+
+    // otherwise if we have a selection -> attempt move
+    if(selected){
+      // Do not attempt move if not joined
+      if(!playerId){
+        setServerMsg('Вы не присоединились к игре');
+        return;
+      }
+      // If trying to move to same square — clear selection
+      if(selected.r === r && selected.c === c){
+        selected = null;
+        applySelection();
+        return;
+      }
+
+      // send move
+      try {
+        const res = await apiMove(playerId, selected.coord, coord);
+        if(res && typeof res.success !== 'undefined'){
+          setServerMsg(res.message || JSON.stringify(res));
+          // if success, fetch state immediately to update board
+          if(res.success) {
+            await fetchAndRender();
+          }
+        } else {
+          setServerMsg('Неожиданный ответ от сервера: ' + JSON.stringify(res));
+        }
+      } catch(err){
+        setServerMsg('Ошибка при отправке хода: ' + err.message);
+      } finally {
+        selected = null;
+        applySelection();
+      }
+    }
+  }
+
+  function applySelection(){
+    // remove selected class from all squares, then set for currently selected
+    const squares = boardEl.children;
+    for(let i=0;i<squares.length;i++){
+      squares[i].classList.remove('selected');
+    }
+    if(selected){
+      const idx = selected.r*8 + selected.c;
+      if(squares[idx]) squares[idx].classList.add('selected');
+    }
+  }
+
+  // UI helpers
+  function setServerMsg(txt){
+    $('serverMsg').textContent = txt;
+  }
+
+  function setPlayerInfo(name, id, color){
+    if(id){
+      $('playerName').textContent = name || '—';
+      $('playerId').textContent = id;
+      $('playerColor').textContent = color;
+      $('joinBlock').style.display = 'none';
+      $('infoBlock').style.display = 'block';
+    } else {
+      $('joinBlock').style.display = 'block';
+      $('infoBlock').style.display = 'none';
+    }
+  }
+
+  // ========== События UI ==========
+  $('joinBtn').addEventListener('click', async () => {
+    const name = $('nameInput').value || '';
+    try {
+      const res = await apiJoin(name);
+      if(res && res.player_id && res.color){
+        localStorage.setItem(LS_ID, res.player_id);
+        localStorage.setItem(LS_COLOR, res.color);
+        localStorage.setItem(LS_NAME, name);
+        setPlayerInfo(name, res.player_id, res.color);
+        setServerMsg('Присоединились успешно как ' + res.color);
+        await fetchAndRender();
+      } else if (res && res.error) {
+        setServerMsg('Ошибка: ' + res.error);
+      } else {
+        setServerMsg('Неожиданный ответ от /join: ' + JSON.stringify(res));
+      }
+    } catch(err){
+      setServerMsg('Ошибка при join: ' + err.message);
+    }
+  });
+
+  $('refreshBtn').addEventListener('click', async () => {
+    await fetchAndRender();
+  });
+
+  $('resetBtn').addEventListener('click', async () => {
+    if(!confirm('Сбросить игру? Это удалит игроков и восстановит доску.')) return;
+    try {
+      const res = await apiReset();
+      if(res && res.Success !== undefined){
+        setServerMsg('Сброс выполнен');
+        // очистим local player (сервер удалил игроков)
+        localStorage.removeItem(LS_ID);
+        localStorage.removeItem(LS_COLOR);
+        localStorage.removeItem(LS_NAME);
+        setPlayerInfo(null, null, null);
+        await fetchAndRender();
+      } else {
+        setServerMsg('Ответ /reset: ' + JSON.stringify(res));
+      }
+    } catch(err){
+      setServerMsg('Ошибка при reset: ' + err.message);
+    }
+  });
+
+  $('clearBtn').addEventListener('click', () => {
+    if(!confirm('Выйти и удалить сохранённые данные на этом устройстве?')) return;
+    localStorage.removeItem(LS_ID);
+    localStorage.removeItem(LS_COLOR);
+    localStorage.removeItem(LS_NAME);
+    setPlayerInfo(null, null, null);
+    setServerMsg('Данные очищены локально');
+  });
+
+  // toggle auto-polling
+  let poller = null;
+  let polling = true;
+  async function startPolling(){
+    if(poller) clearInterval(poller);
+    poller = setInterval(fetchAndRender, POLL_INTERVAL_MS);
+    polling = true;
+    $('pollToggle').textContent = 'Остановить авто-опрос';
+  }
+  function stopPolling(){
+    if(poller) clearInterval(poller);
+    poller = null;
+    polling = false;
+    $('pollToggle').textContent = 'Запустить авто-опрос';
+  }
+  $('pollToggle').addEventListener('click', () => {
+    if(polling) stopPolling(); else startPolling();
+  });
+
+  // test-move button: just an example to help debug
+  $('forceMove').addEventListener('click', async () => {
+    const id = localStorage.getItem(LS_ID);
+    if(!id){ setServerMsg('Сначала присоединитесь'); return; }
+    // пример: c3 -> d4
+    try {
+      const res = await apiMove(id, 'c3', 'd4');
+      setServerMsg(JSON.stringify(res));
+      await fetchAndRender();
+    } catch(err){
+      setServerMsg('Ошибка тест-хода: ' + err.message);
+    }
+  });
+
+  // ========== Fetch & boot ==========
+  async function fetchAndRender(){
+    try {
+      const state = await apiState();
+      // сервер возвращает stateResponse { board:[][], IsWhiteTurn:bool }
+      // возможно в случае ошибки вернётся { error: "..." } — обработаем это
+      if(state && state.board){
+        renderBoard(state);
+      } else if(state && state.error){
+        setServerMsg('Ошибка /state: ' + state.error);
+      } else {
+        setServerMsg('Неожиданный ответ /state: ' + JSON.stringify(state));
+      }
+    } catch(err){
+      setServerMsg('Ошибка запроса /state: ' + err.message);
+    }
+  }
+
+  // стартовые действия
+  buildBoard();
+
+  // restore local saved player
+  const savedId = localStorage.getItem(LS_ID);
+  const savedColor = localStorage.getItem(LS_COLOR);
+  const savedName = localStorage.getItem(LS_NAME);
+  if(savedId && savedColor){
+    setPlayerInfo(savedName, savedId, savedColor);
+    setServerMsg('Восстановлен локальный player_id');
+  } else {
+    setPlayerInfo(null, null, null);
+  }
+
+  // первый fetch, затем запустить опрос
+  fetchAndRender().then(() => startPolling());
+
+})();
+</script>
 </body>
 </html>
