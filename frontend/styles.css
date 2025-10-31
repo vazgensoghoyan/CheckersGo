@@ -1,0 +1,163 @@
+/* styles.css */
+
+/* --- Общие стили --- */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  margin: 20px;
+}
+
+h1, h2 {
+  text-align: center;
+}
+
+#boardContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, 50px);
+  grid-template-rows: repeat(8, 50px);
+  gap: 0;
+  border: 2px solid #333;
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  position: relative;
+}
+
+.square.light {
+  background-color: #eee;
+}
+
+.square.dark {
+  background-color: #555;
+  color: #fff;
+}
+
+.piece {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: default;
+  position: absolute;
+}
+
+.piece.white {
+  background-color: #fff;
+  color: #000;
+  border: 2px solid #000;
+}
+
+.piece.black {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.piece.king {
+  font-size: 28px;
+}
+
+/* --- Статус и сообщения --- */
+#status, #serverMsg {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+
+#serverMsg {
+  color: #c00;
+  font-weight: bold;
+}
+
+/* --- Игроки --- */
+.playerBlock {
+  background-color: #fff;
+  border: 2px solid #333;
+  padding: 10px;
+  margin: 10px auto;
+  width: 300px;
+  border-radius: 10px;
+}
+
+.playerBlock input[type="text"] {
+  width: 120px;
+  padding: 5px;
+  margin: 5px 2px;
+  font-size: 14px;
+}
+
+.playerBlock button {
+  padding: 5px 10px;
+  margin: 5px 2px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.controls {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.controls button {
+  padding: 8px 15px;
+  margin: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+}
+
+.controls button:hover {
+  background-color: #555;
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 600px) {
+  #board {
+    grid-template-columns: repeat(8, 35px);
+    grid-template-rows: repeat(8, 35px);
+  }
+
+  .square {
+    width: 35px;
+    height: 35px;
+  }
+
+  .piece {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+
+  .piece.king {
+    font-size: 20px;
+  }
+
+  .playerBlock {
+    width: 90%;
+  }
+
+  .playerBlock input[type="text"] {
+    width: 45%;
+  }
+}
